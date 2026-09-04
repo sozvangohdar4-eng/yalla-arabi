@@ -1,0 +1,19 @@
+{
+  "appName": "یەڵڵا عەرەبی | Yalla Arabi",
+  "appId": "com.yallaarabi.app",
+  "version": "1.0.0",
+  "versionCode": 1,
+  "server": {
+    "productionUrl": "https://yalla-arabi.web.app",
+    "localUrl": "http://192.168.100.224:8080",
+    "offlineFallback": "file:///android_asset/www/index.html",
+    "timeoutMs": 6000,
+    "allowPullToRefresh": true
+  },
+  "features": {
+    "offlineFirst": true,
+    "hapticFeedback": true,
+    "speechSynthesis": true,
+    "audioFallback": true
+  }
+}

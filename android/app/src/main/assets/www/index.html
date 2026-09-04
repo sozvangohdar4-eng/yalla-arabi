@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>یەڵڵا عەرەبی | فێربوونی عەرەبی عێراقی و پزیشکی</title>
+  
+  <!-- Web App Manifest & Samsung One UI / Android PWA Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0ea5e9">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="یەڵڵا عەرەبی">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            duoGreen: '#22c55e',
+            duoBlue: '#3b82f6',
+            duoGold: '#f59e0b',
+            duoPurple: '#8b5cf6',
+            duoRed: '#ef4444'
+          },
+          fontFamily: {
+            sans: ['Vazirmatn', 'Noto Sans Arabic', 'Segoe UI', 'Tahoma', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts for Kurdish & Arabic Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;900&family=Vazirmatn:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-200 selection:bg-emerald-500 selection:text-white">
+
+  <!-- Main App Wrapper -->
+  <div class="flex flex-col lg:flex-row min-h-screen">
+
+    <!-- Desktop Sidebar Navigation (Right side in RTL) -->
+    <aside id="app-side-nav" class="hidden lg:flex flex-col justify-between w-64 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sticky top-0 h-screen z-30">
+      <div>
+        <!-- App Logo & Brand -->
+        <div class="flex items-center gap-3 px-3 py-4 mb-4 border-b border-slate-100 dark:border-slate-800">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white text-2xl shadow-md shadow-emerald-500/20 mascot-bobbing">
+            🌴
+          </div>
+          <div>
+            <h1 class="text-base font-black text-slate-900 dark:text-white tracking-tight">یەڵڵا عەرەبی</h1>
+            <p class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">عێراقی بۆ سۆرانی (A1-C2)</p>
+          </div>
+        </div>
+
+        <!-- Level Quick Links (A1 to C2) -->
+        <div class="mb-4 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <div class="text-[10px] font-black text-slate-400 mb-1.5 px-1 uppercase tracking-wider">ئاستەکانی خوێندن:</div>
+          <div class="grid grid-cols-3 gap-1">
+            <button onclick="window.app.switchLevel('a1')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-emerald-500 text-white hover:opacity-90">A1</button>
+            <button onclick="window.app.switchLevel('a2')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-blue-500 text-white hover:opacity-90">A2</button>
+            <button onclick="window.app.switchLevel('b1')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-amber-500 text-white hover:opacity-90">B1</button>
+            <button onclick="window.app.switchLevel('b2')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-purple-500 text-white hover:opacity-90">B2</button>
+            <button onclick="window.app.switchLevel('c1')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-pink-500 text-white hover:opacity-90">C1</button>
+            <button onclick="window.app.switchLevel('c2')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white hover:opacity-90">C2</button>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1.5">
+          <button 
+            data-nav-view="path"
+            onclick="window.app.switchView('path')" 
+            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl font-black text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+            <i data-lucide="map" class="w-5 h-5"></i>
+            <span>نەخشەی فێربوون</span>
+          </button>
+
+          <button 
+            data-nav-view="medical"
+            onclick="window.app.switchView('medical')" 
+            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold text-sm text-sky-600 dark:text-sky-400 bg-sky-50/70 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-200 dark:border-sky-800/60 transition-all">
+            <i data-lucide="stethoscope" class="w-5 h-5"></i>
+            <span>کۆرسی پزیشکی 🩺</span>
+          </button>
+
+          <button 
+            data-nav-view="vocab"
+            onclick="window.app.switchView('vocab')" 
+            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+            <span>فەرهەنگ و وشە (SRS)</span>
+          </button>
+
+          <button 
+            data-nav-view="dialogues"
+            onclick="window.app.switchView('dialogues')" 
+            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+            <i data-lucide="message-square" class="w-5 h-5"></i>
+            <span>گفتوگۆی ڕاستەقینە</span>
+          </button>
+
+          <button 
+            data-nav-view="grammar"
+            onclick="window.app.switchView('grammar')" 
+            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+            <i data-lucide="git-merge" class="w-5 h-5"></i>
+            <span>ڕێزمانی بەراوردکاری</span>
+          </button>
+
+          <button 
+            data-nav-view="leaderboard"
+            onclick="window.app.switchView('leaderboard')" 
+            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
+            <i data-lucide="trophy" class="w-5 h-5"></i>
+            <span>کێبڕکێ و ئەرکەکان</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Mascot Card & Settings Switcher -->
+      <div class="space-y-3">
+        <!-- Mascot Advice Card -->
+        <div class="bg-emerald-50 dark:bg-slate-800/90 border border-emerald-200 dark:border-slate-700 p-3 rounded-2xl text-xs">
+          <div class="font-bold text-emerald-800 dark:text-emerald-300 mb-1 flex items-center gap-1.5">
+            <span class="text-base">🌴</span>
+            <span>نەخیلۆکە</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed text-[11px]">
+            ئاستی A1 لەسەرەتای نەخشەکەیە و دەتوانیت دەستبەجێ بە وانەی یەکەم (سڵاوکردن) دەستپێبکەیت!
+          </p>
+        </div>
+
+        <!-- Controls: Sound & Theme -->
+        <div class="grid grid-cols-2 gap-2">
+          <button 
+            onclick="window.app.toggleSound()" 
+            class="flex items-center justify-center gap-1.5 p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="کوژاندنەوە / هەڵکردنی دەنگ">
+            <i id="sound-icon" data-lucide="volume-2" class="w-4 h-4 text-emerald-500"></i>
+            <span>دەنگ</span>
+          </button>
+
+          <button 
+            onclick="window.app.toggleTheme()" 
+            class="flex items-center justify-center gap-1.5 p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="گۆڕینی دۆخی تاریک / ڕووناک">
+            <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+            <i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i>
+            <span>ڕەنگ</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 pb-20 lg:pb-8">
+
+      <!-- Top Status Bar (XP, Streak, Hearts, Gems, Level Pill, Audio, Theme) -->
+      <header id="app-top-bar" class="sticky top-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 mobile-safe-top z-20">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+          
+          <!-- Mobile Brand Logo -->
+          <div class="flex lg:hidden items-center gap-1.5">
+            <span class="text-2xl mascot-bobbing">🌴</span>
+            <span class="font-black text-xs sm:text-sm">یەڵڵا عەرەبی</span>
+          </div>
+
+          <!-- Current Level Pill (Always Clickable) -->
+          <button 
+            onclick="window.app.switchView('path')" 
+            class="flex items-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white px-2.5 py-1 rounded-xl shadow-sm transition-transform active:scale-95 font-black text-xs" 
+            title="ئاستی هەڵبژێردراو - کلیک بکە بۆ گۆڕینی ئاست">
+            <span>ئاستی</span>
+            <span id="top-level-badge">A1</span>
+          </button>
+
+          <!-- Gamification Indicators -->
+          <div class="flex items-center gap-2 sm:gap-4 font-black text-xs sm:text-sm">
+            <!-- Streak -->
+            <div class="flex items-center gap-1 text-rose-500 bg-rose-50 dark:bg-rose-950/40 px-2 py-1 rounded-xl" title="ڕۆژانی بەردەوامی">
+              <span class="streak-flame text-sm sm:text-base">🔥</span>
+              <span id="top-streak-val">3</span>
+            </div>
+
+            <!-- XP Points -->
+            <div class="flex items-center gap-1 text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-2 py-1 rounded-xl" title="کۆی خاڵەکان (XP)">
+              <span class="text-sm sm:text-base">⚡</span>
+              <span id="top-xp-val">45</span>
+            </div>
+
+            <!-- Gems -->
+            <div class="flex items-center gap-1 text-blue-500 bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded-xl" title="ئەڵماسەکان">
+              <span class="text-sm sm:text-base">💎</span>
+              <span id="top-gems-val">150</span>
+            </div>
+
+            <!-- Hearts -->
+            <button 
+              onclick="window.app.showHeartsDepletedModal()" 
+              class="flex items-center gap-1 text-rose-500 bg-rose-50 dark:bg-rose-950/40 px-2 py-1 rounded-xl hover:scale-105 transition-transform active:scale-95" 
+              title="دڵەکان - کلیک بکە بۆ پڕکردنەوە">
+              <span class="text-sm sm:text-base">❤️</span>
+              <span id="top-hearts-val">5</span>
+            </button>
+          </div>
+
+          <!-- Quick Audio, Server & Theme Controls -->
+          <div class="flex items-center gap-1">
+            <button onclick="window.app.showServerModal()" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" title="سێرڤەری سەرەکی و نوێکارییەکان">
+              <i data-lucide="radio" class="w-4 h-4 text-sky-500 animate-pulse"></i>
+            </button>
+            <button onclick="window.app.toggleSound()" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" title="دەنگ">
+              <i data-lucide="volume-2" class="w-4 h-4 text-emerald-500"></i>
+            </button>
+            <button onclick="window.app.toggleTheme()" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" title="شێوازی تاریک/ڕووناک">
+              <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+              <i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Mobile App Install Banner (Prominent on Samsung & Android) -->
+      <div id="pwa-install-banner" class="hidden mx-4 mt-3 mb-1 p-3 bg-gradient-to-r from-sky-600 via-sky-500 to-emerald-600 rounded-2xl shadow-lg shadow-sky-600/20 text-white flex items-center justify-between gap-3 animate-fade-in z-10">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-10 h-10 shrink-0 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-xl shadow-inner">
+            📲
+          </div>
+          <div class="truncate">
+            <div class="font-black text-xs sm:text-sm truncate">دابەزاندنی ئەپ بۆ مۆبایلەکەت</div>
+            <div class="text-[10px] text-sky-100 truncate">تەواو لەگەڵ Samsung S23 Ultra گونجاوە • کارکردنی ئۆفلاین</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="pwa-install-btn" class="bg-white text-sky-700 hover:bg-sky-50 font-black text-xs px-3 py-1.5 rounded-xl shadow active:scale-95 transition-transform">
+            ئینستۆڵ
+          </button>
+          <button onclick="document.getElementById('pwa-install-banner').remove()" class="text-white/80 hover:text-white p-1 text-sm font-bold">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- View Containers -->
+      <section id="view-path" class="flex-1"></section>
+      <section id="view-medical" class="flex-1 hidden"></section>
+      <section id="view-exercise" class="flex-1 hidden"></section>
+      <section id="view-vocab" class="flex-1 hidden"></section>
+      <section id="view-dialogues" class="flex-1 hidden"></section>
+      <section id="view-grammar" class="flex-1 hidden"></section>
+      <section id="view-leaderboard" class="flex-1 hidden"></section>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar (Optimized for Samsung Gesture Pill) -->
+    <nav id="app-bottom-nav" class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-1 pt-1.5 mobile-safe-bottom flex items-center justify-around z-30">
+      <button 
+        data-nav-view="path"
+        onclick="window.app.switchView('path')" 
+        class="flex flex-col items-center gap-1 p-1.5 rounded-xl text-slate-500 dark:text-slate-400">
+        <i data-lucide="map" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold">نەخشە</span>
+      </button>
+
+      <button 
+        data-nav-view="medical"
+        onclick="window.app.switchView('medical')" 
+        class="flex flex-col items-center gap-1 p-1.5 rounded-xl text-sky-600 dark:text-sky-400 font-black">
+        <i data-lucide="stethoscope" class="w-5 h-5"></i>
+        <span class="text-[9px] font-black">پزیشکی</span>
+      </button>
+
+      <button 
+        data-nav-view="vocab"
+        onclick="window.app.switchView('vocab')" 
+        class="flex flex-col items-center gap-1 p-1.5 rounded-xl text-slate-500 dark:text-slate-400">
+        <i data-lucide="book-open" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold">فەرهەنگ</span>
+      </button>
+
+      <button 
+        data-nav-view="dialogues"
+        onclick="window.app.switchView('dialogues')" 
+        class="flex flex-col items-center gap-1 p-1.5 rounded-xl text-slate-500 dark:text-slate-400">
+        <i data-lucide="message-square" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold">گفتوگۆ</span>
+      </button>
+
+      <button 
+        data-nav-view="grammar"
+        onclick="window.app.switchView('grammar')" 
+        class="flex flex-col items-center gap-1 p-1.5 rounded-xl text-slate-500 dark:text-slate-400">
+        <i data-lucide="git-merge" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold">ڕێزمان</span>
+      </button>
+
+      <button 
+        data-nav-view="leaderboard"
+        onclick="window.app.switchView('leaderboard')" 
+        class="flex flex-col items-center gap-1 p-1.5 rounded-xl text-slate-500 dark:text-slate-400">
+        <i data-lucide="trophy" class="w-5 h-5"></i>
+        <span class="text-[9px] font-bold">کێبڕکێ</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Modal: Hearts Depleted & Practice Option -->
+  <div id="modal-hearts-depleted" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl animate-fade-in">
+      <div class="text-5xl mb-3">💔</div>
+      <h3 class="text-xl font-black text-slate-800 dark:text-slate-100 mb-1">دڵەکانت نەماون!</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+        دەتوانیت ڕاهێنانی خێرا بکەیت بۆ بەدەستهێنانی دڵ بە خۆڕایی، یان بە ٥٠ ئەڵماس 💎 هەموو دڵەکان پڕبکەیتەوە.
+      </p>
+
+      <div class="space-y-2.5">
+        <button 
+          onclick="window.app.closeHeartsModal(); window.app.startPracticeMode()" 
+          class="btn-duo-3d bg-emerald-500 text-white border-b-4 border-emerald-700 w-full py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
+          <span>ڕاهێنانی خێرا (بە خۆڕایی +١ ❤️)</span>
+        </button>
+
+        <button 
+          onclick="window.app.refillHeartsWithGems()" 
+          class="btn-duo-3d bg-blue-500 text-white border-b-4 border-blue-700 w-full py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
+          <span>پڕکردنەوە بە ٥٠ ئەڵماس (٥ دڵ ❤️)</span>
+        </button>
+
+        <button 
+          onclick="window.app.closeHeartsModal()" 
+          class="w-full py-2.5 rounded-2xl font-bold text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          دواتر
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Live Server Connection Settings (APK & Web Sync) -->
+  <div id="modal-server-settings" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl animate-fade-in">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-sky-100 dark:bg-sky-950/60 flex items-center justify-center text-2xl mb-3 shadow-inner">
+        📡
+      </div>
+      <h3 class="text-lg font-black text-slate-800 dark:text-slate-100 mb-1">سێرڤەری سەرەکی و نوێکارییەکان</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed font-medium">
+        ئەم ئەپڵیکەیشنە پەیوەستە بە سێرڤەری سەرەکی، هەر کاتێک دەستکارییەکان دەنێریت، ڕاستەوخۆ نوێکارییەکان وەردەگریت.
+      </p>
+
+      <div class="text-right mb-4">
+        <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">ناونیشانی سێرڤەر (Server URL):</label>
+        <input 
+          id="input-server-url" 
+          type="text" 
+          dir="ltr"
+          placeholder="http://192.168.100.224:8080" 
+          class="w-full px-3 py-2 text-xs font-mono rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+      </div>
+
+      <div class="space-y-2">
+        <button 
+          onclick="window.app.saveServerUrl()" 
+          class="btn-duo-3d btn-blue-3d w-full py-2.5 rounded-2xl font-black text-xs shadow-md">
+          پاشەکەوتکردن و پەیوەستبوون ➔
+        </button>
+
+        <button 
+          onclick="window.app.closeServerModal()" 
+          class="w-full py-2 rounded-xl font-bold text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          داخستن
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts in Correct Dependency Order -->
+  <script src="js/audio-engine.js"></script>
+  <script src="js/data/curriculum-a1-a2.js"></script>
+  <script src="js/data/curriculum-b1-b2.js"></script>
+  <script src="js/data/curriculum-c1-c2.js"></script>
+  <script src="js/data/vocabulary-database.js"></script>
+  <script src="js/data/dialogues-data.js"></script>
+  <script src="js/data/grammar-patterns.js"></script>
+  <script src="js/data/unit-guidebooks.js"></script>
+  <script src="js/data/medical-guidebooks.js"></script>
+  <script src="js/data/medical-glossary.js"></script>
+  <script src="js/data/medical-curriculum.js"></script>
+  <script src="js/data/medical-curriculum-b1-c2.js"></script>
+  <script src="js/components/learning-path.js"></script>
+  <script src="js/components/exercise-engine.js"></script>
+  <script src="js/components/medical-course.js"></script>
+  <script src="js/components/srs-vocab.js"></script>
+  <script src="js/components/dialogue-player.js"></script>
+  <script src="js/components/grammar-guide.js"></script>
+  <script src="js/components/leaderboard-quests.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Service Worker Registration & PWA Mobile Installation Logic -->
+  <script>
+    let deferredPrompt = null;
+
+    // Listen for beforeinstallprompt on Android / Samsung devices
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.classList.remove('hidden');
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const installBtn = document.getElementById('pwa-install-btn');
+      if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+              console.log('User installed Yalla Arabi PWA');
+            }
+            deferredPrompt = null;
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.classList.add('hidden');
+          } else {
+            // Friendly instruction if triggered manually or in Samsung Internet
+            alert('بۆ دابەزاندنی ئەم ئەپە لەسەر سامسۆنگ گالەکسی:\n\n١. لە وێبگەڕی Chrome یان Samsung Internet کلیک لەسەر سێ خاڵەکە (⋮) بکە.\n٢. دوگمەی "Install app" یان "Add page to -> Home screen" هەڵبژێرە.');
+          }
+        });
+      }
+
+      // Hide banner if app is already running in standalone/installed mode
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.remove();
+      }
+    });
+
+    // Register offline Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Yalla Arabi Service Worker active, scope:', reg.scope))
+          .catch((err) => console.warn('Service Worker registration note:', err));
+      });
+    }
+  </script>
+</body>
+</html>

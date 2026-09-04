@@ -1,0 +1,19 @@
+# Android
+.gradle/
+build/
+android/app/build/
+android/build/
+local.properties
+*.iml
+.idea/
+
+# OS & Temp
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
