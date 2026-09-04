@@ -124,3 +124,31 @@ window.VOCABULARY_DATABASE = [
   { id: 'v99', ar: 'مالتچ', phonetic: 'مالتِچ', ku: 'هی تۆ (مێ)', category: 'connectors', example_ar: 'الجنطة هاي مالتچ اختي؟', example_ku: 'ئەم جانتایە هی تۆیە خوشکەکەم؟' },
   { id: 'v100', ar: 'اگدر', phonetic: 'ئەگدەر', ku: 'دەتوانم (لە اقدر)', category: 'connectors', example_ar: 'اگدر اساعدك بأي وكت.', example_ku: 'دەتوانم لە هەموو کاتێکدا هاوکاریت بکەم.' }
 ];
+
+// Enrich and normalize vocabulary items to guarantee no undefined fields
+(function() {
+  const CATEGORY_META = {
+    basics: { level: 'A1', name_ku: 'سڵاو و بنەماکان', pos: 'دەستەواژە' },
+    time_numbers: { level: 'A1', name_ku: 'کات و ژمارەکان', pos: 'ناو و هاوەڵناو' },
+    transport: { level: 'A2', name_ku: 'هاتوچۆ و ئاڕاستە', pos: 'ناو و کردار' },
+    food: { level: 'A2', name_ku: 'خواردن و چێشتخانە', pos: 'ناو و خۆراک' },
+    home: { level: 'B1', name_ku: 'ماڵ و کەلوپەل', pos: 'کەلوپەلی ماڵ' },
+    shopping: { level: 'B1', name_ku: 'بازاڕ و کڕین', pos: 'جلوبەرگ و پێداویستی' },
+    health: { level: 'B2', name_ku: 'تەندروستی و پزیشکی', pos: 'دەستەواژەی پزیشکی' },
+    family: { level: 'B2', name_ku: 'خێزان و کۆمەڵایەتی', pos: 'سیفەت و خێزان' },
+    slang: { level: 'C1', name_ku: 'سڵانگ و زمانی شەقام', pos: 'سڵانگی بەغدادی' },
+    connectors: { level: 'C2', name_ku: 'بەستەر و ئامرازەکان', pos: 'ئامرازی دەستەواژە' }
+  };
+
+  if (window.VOCABULARY_DATABASE && Array.isArray(window.VOCABULARY_DATABASE)) {
+    window.VOCABULARY_DATABASE.forEach(item => {
+      const meta = CATEGORY_META[item.category] || { level: 'A1', name_ku: 'گشتی', pos: 'وشە' };
+      if (!item.level) item.level = meta.level;
+      if (!item.category_name_ku) item.category_name_ku = meta.name_ku;
+      if (!item.pos) item.pos = meta.pos;
+      if (!item.phonetic_ku) item.phonetic_ku = item.phonetic || '';
+      if (!item.phonetic) item.phonetic = item.phonetic_ku || '';
+    });
+  }
+})();
+

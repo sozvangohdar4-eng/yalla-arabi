@@ -335,10 +335,11 @@ class MedicalCourse {
     const allGlossary = window.MEDICAL_GLOSSARY || [];
     const filtered = allGlossary.filter(item => {
       const matchesCat = (this.glossaryFilter === 'ALL' || item.category === this.glossaryFilter);
-      const matchesSearch = !this.glossarySearch || 
-        item.ar.toLowerCase().includes(this.glossarySearch.toLowerCase()) || 
-        item.ku.toLowerCase().includes(this.glossarySearch.toLowerCase()) ||
-        item.phonetic.toLowerCase().includes(this.glossarySearch.toLowerCase());
+      const searchLower = (this.glossarySearch || '').trim().toLowerCase();
+      const matchesSearch = !searchLower || 
+        (item.ar || '').toLowerCase().includes(searchLower) || 
+        (item.ku || '').toLowerCase().includes(searchLower) || 
+        (item.phonetic || '').toLowerCase().includes(searchLower);
       return matchesCat && matchesSearch;
     });
 
@@ -397,16 +398,18 @@ class MedicalCourse {
                     ${item.ar}
                   </div>
                   <button 
-                    onclick="window.audioEngine.speakIraqi('${item.ar}')"
+                    onclick="window.audioEngine.speakIraqi('${(item.ar || '').replace(/'/g, "\\'")}')"
                     class="w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center text-xs shadow-sm hover:scale-105 active:scale-95 transition-transform"
                     title="گوێگرتن لە دەنگ">
                     <i data-lucide="volume-2" class="w-4 h-4"></i>
                   </button>
                 </div>
 
-                <div class="text-xs font-black text-sky-600 dark:text-sky-400 mb-2">
-                  خوێندنەوە: <span class="font-bold">${item.phonetic}</span>
-                </div>
+                ${item.phonetic ? `
+                  <div class="text-xs font-black text-sky-600 dark:text-sky-400 mb-2">
+                    خوێندنەوە: <span class="font-bold">${item.phonetic}</span>
+                  </div>
+                ` : ''}
 
                 <div class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">
                   واتا: ${item.ku}
@@ -417,7 +420,7 @@ class MedicalCourse {
                 <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800 text-xs">
                   <div class="flex items-center justify-between text-slate-800 dark:text-slate-200 font-bold mb-1" dir="rtl">
                     <span>${item.example_ar}</span>
-                    <button onclick="window.audioEngine.speakIraqi('${item.example_ar}')" class="text-sky-500 hover:scale-110">
+                    <button onclick="window.audioEngine.speakIraqi('${(item.example_ar || '').replace(/'/g, "\\'")}')" class="text-sky-500 hover:scale-110">
                       <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
                     </button>
                   </div>

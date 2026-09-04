@@ -268,11 +268,82 @@ class AudioEngine {
       return;
     }
 
+    this.triggerHaptic('light');
     this.ensureAudioContext();
 
-    // If Web Speech API not available, use audio fallback immediately
+    // Strip parenthesized Kurdish glosses, annotations, arrows, and emojis for pure Arabic pronunciation
+    const cleanText = String(text)
+      .replace(/\(.*?\)/g, '')
+      .replace(/\[.*?\]/g, '')
+      .replace(/➔.*/g, '')
+      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '')
+      .replace(/[،؟!.،]/g, ' ')
+      .trim() || String(text);
+
+    if (!cleanText) {
+      if (onEndCallback) onEndCallback();
+      return;
+    }
+
+    // Attempt primary high-fidelity Server TTS endpoint
+    this.speakWithServerTTS(cleanText, rate, (success) => {
+      if (!success) {
+        // Fallback to client-side SpeechSynthesis if server or network unavailable
+        this.speakWithSpeechSynthesis(cleanText, rate, onEndCallback);
+      } else {
+        if (onEndCallback) onEndCallback();
+      }
+    });
+  }
+
+  // Primary High-Fidelity Audio Stream via /api/tts
+  speakWithServerTTS(cleanText, rate = null, callback = null) {
+    try {
+      if (this.currentAudio) {
+        try {
+          this.currentAudio.pause();
+          this.currentAudio.currentTime = 0;
+        } catch (e) {}
+        this.currentAudio = null;
+      }
+
+      const ttsUrl = `/api/tts?text=${encodeURIComponent(cleanText)}`;
+      const audio = new Audio(ttsUrl);
+      audio.playbackRate = (rate && rate < 0.85) ? 0.72 : 1.0;
+      this.currentAudio = audio;
+
+      let hasCallbacked = false;
+      const notify = (status) => {
+        if (!hasCallbacked) {
+          hasCallbacked = true;
+          this.currentAudio = null;
+          if (callback) callback(status);
+        }
+      };
+
+      audio.onended = () => notify(true);
+      audio.onerror = (e) => {
+        console.warn('Server TTS failed, switching to local speech synthesis:', e);
+        notify(false);
+      };
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((playErr) => {
+          console.warn('Audio play() error:', playErr);
+          notify(false);
+        });
+      }
+    } catch (err) {
+      console.warn('speakWithServerTTS exception:', err);
+      if (callback) callback(false);
+    }
+  }
+
+  // Fallback: Synchronous Web Speech API
+  speakWithSpeechSynthesis(cleanText, rate = null, onEndCallback = null) {
     if (!this.synth) {
-      this.speakWithFallbackAudio(text, rate, onEndCallback);
+      if (onEndCallback) onEndCallback();
       return;
     }
 
@@ -283,25 +354,14 @@ class AudioEngine {
       this.synth.cancel();
 
       const voices = (this.voices && this.voices.length > 0) ? this.voices : (this.synth.getVoices ? this.synth.getVoices() : []);
-      
-      // Look for Arabic voices: Iraqi first, then any Arabic, then known Arabic TTS voice names
       let arabicVoice = voices.find(v => v.lang === 'ar-IQ' || v.lang.startsWith('ar-IQ')) ||
                         voices.find(v => v.lang.startsWith('ar-') || v.lang === 'ar') ||
                         voices.find(v => (v.name && (v.name.toLowerCase().includes('arabic') || 
                                                      v.name.toLowerCase().includes('tarik') || 
                                                      v.name.toLowerCase().includes('layla') || 
-                                                     v.name.toLowerCase().includes('maged') ||
-                                                     v.name.toLowerCase().includes('naayf') ||
-                                                     v.name.toLowerCase().includes('hoda') ||
-                                                     v.name.toLowerCase().includes('salma'))));
+                                                     v.name.toLowerCase().includes('maged'))));
 
-      // If browser has loaded voices, but NO Arabic voice exists on the user's OS:
-      if (!arabicVoice && voices.length > 0) {
-        this.speakWithFallbackAudio(text, rate, onEndCallback);
-        return;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance(cleanText);
       utterance.rate = rate || this.speechRateNormal;
       utterance.pitch = this.speechPitch;
 
@@ -314,79 +374,29 @@ class AudioEngine {
 
       this.activeUtterance = utterance;
 
-      let hasFinished = false;
+      let finished = false;
       const done = () => {
-        if (!hasFinished) {
-          hasFinished = true;
+        if (!finished) {
+          finished = true;
           this.activeUtterance = null;
           if (onEndCallback) onEndCallback();
         }
       };
 
       utterance.onend = done;
-      utterance.onerror = (e) => {
-        console.warn('SpeechSynthesis error, falling back to audio:', e);
-        done();
-        this.speakWithFallbackAudio(text, rate, null);
-      };
+      utterance.onerror = () => done();
 
-      setTimeout(() => {
-        try {
-          if (this.synth.paused) this.synth.resume();
-          this.synth.speak(utterance);
-        } catch (speakErr) {
-          console.warn('speak() threw, falling back to audio:', speakErr);
-          this.speakWithFallbackAudio(text, rate, onEndCallback);
-        }
-      }, 20);
-
+      // Synchronous execution avoids gesture loss in mobile browsers
+      this.synth.speak(utterance);
     } catch (err) {
-      console.warn('speakIraqi failed, using audio fallback:', err);
-      this.speakWithFallbackAudio(text, rate, onEndCallback);
+      console.warn('SpeechSynthesis fallback error:', err);
+      if (onEndCallback) onEndCallback();
     }
   }
 
   // High-reliability audio fallback when system lacks Arabic TTS
   speakWithFallbackAudio(text, rate = null, onEndCallback = null) {
-    try {
-      const cleanText = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '').replace(/[،؟!.،]/g, ' ').trim();
-      if (!cleanText) {
-        if (onEndCallback) onEndCallback();
-        return;
-      }
-
-      const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q=${encodeURIComponent(cleanText)}`;
-      
-      if (this.currentAudio) {
-        try { this.currentAudio.pause(); } catch(e) {}
-        this.currentAudio = null;
-      }
-
-      const audio = new Audio(url);
-      audio.playbackRate = (rate && rate < 0.8) ? 0.75 : 1.0;
-      this.currentAudio = audio;
-
-      audio.onended = () => {
-        this.currentAudio = null;
-        if (onEndCallback) onEndCallback();
-      };
-
-      audio.onerror = () => {
-        this.currentAudio = null;
-        if (onEndCallback) onEndCallback();
-      };
-
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((err) => {
-          console.warn('Audio playback failed or offline:', err);
-          if (onEndCallback) onEndCallback();
-        });
-      }
-    } catch (e) {
-      console.warn('speakWithFallbackAudio error:', e);
-      if (onEndCallback) onEndCallback();
-    }
+    this.speakIraqi(text, rate, onEndCallback);
   }
 
   // Slow pronunciation for ear training

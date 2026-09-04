@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>یەڵڵا عەرەبی | فێربوونی عەرەبی عێراقی و پزیشکی</title>
+  <title>یەڵڵا عەرەبی | Yalla Arabi</title>
+  <meta name="description" content="Duolingo-style Iraqi Arabic and medical Arabic learning courseware for Sorani Kurdish speakers">
+  <meta property="og:title" content="یەڵڵا عەرەبی | Yalla Arabi">
+  <meta property="og:description" content="Duolingo-style Iraqi Arabic and medical Arabic learning courseware for Sorani Kurdish speakers">
   
   <!-- Web App Manifest & Samsung One UI / Android PWA Tags -->
   <link rel="manifest" href="manifest.json">
@@ -71,12 +74,12 @@
         <div class="mb-4 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700">
           <div class="text-[10px] font-black text-slate-400 mb-1.5 px-1 uppercase tracking-wider">ئاستەکانی خوێندن:</div>
           <div class="grid grid-cols-3 gap-1">
-            <button onclick="window.app.switchLevel('a1')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-emerald-500 text-white hover:opacity-90">A1</button>
-            <button onclick="window.app.switchLevel('a2')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-blue-500 text-white hover:opacity-90">A2</button>
-            <button onclick="window.app.switchLevel('b1')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-amber-500 text-white hover:opacity-90">B1</button>
-            <button onclick="window.app.switchLevel('b2')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-purple-500 text-white hover:opacity-90">B2</button>
-            <button onclick="window.app.switchLevel('c1')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-pink-500 text-white hover:opacity-90">C1</button>
-            <button onclick="window.app.switchLevel('c2')" class="px-2 py-1.5 rounded-lg text-xs font-black bg-indigo-600 text-white hover:opacity-90">C2</button>
+            <button id="side-level-a1" onclick="window.app.switchLevel('a1')" class="side-level-pill px-2 py-1.5 rounded-lg text-xs font-black bg-emerald-500 text-white hover:opacity-90 transition-all">A1</button>
+            <button id="side-level-a2" onclick="window.app.switchLevel('a2')" class="side-level-pill px-2 py-1.5 rounded-lg text-xs font-black bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:opacity-90 transition-all">A2</button>
+            <button id="side-level-b1" onclick="window.app.switchLevel('b1')" class="side-level-pill px-2 py-1.5 rounded-lg text-xs font-black bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:opacity-90 transition-all">B1</button>
+            <button id="side-level-b2" onclick="window.app.switchLevel('b2')" class="side-level-pill px-2 py-1.5 rounded-lg text-xs font-black bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:opacity-90 transition-all">B2</button>
+            <button id="side-level-c1" onclick="window.app.switchLevel('c1')" class="side-level-pill px-2 py-1.5 rounded-lg text-xs font-black bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:opacity-90 transition-all">C1</button>
+            <button id="side-level-c2" onclick="window.app.switchLevel('c2')" class="side-level-pill px-2 py-1.5 rounded-lg text-xs font-black bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:opacity-90 transition-all">C2</button>
           </div>
         </div>
 
@@ -221,8 +224,8 @@
 
           <!-- Quick Audio, Server & Theme Controls -->
           <div class="flex items-center gap-1">
-            <button onclick="window.app.showServerModal()" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" title="سێرڤەری سەرەکی و نوێکارییەکان">
-              <i data-lucide="radio" class="w-4 h-4 text-sky-500 animate-pulse"></i>
+            <button onclick="window.app.showServerModal()" class="p-1.5 rounded-lg text-slate-500 hover:text-sky-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="سێرڤەری سەرەکی و پەیوەندی">
+              <i data-lucide="wifi" class="w-4 h-4 text-sky-500"></i>
             </button>
             <button onclick="window.app.toggleSound()" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" title="دەنگ">
               <i data-lucide="volume-2" class="w-4 h-4 text-emerald-500"></i>
@@ -388,6 +391,77 @@
     </div>
   </div>
 
+  <!-- Modal: Milestone Unit Reward Celebration -->
+  <div id="modal-milestone-reward" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-slate-900 border-2 border-amber-300 dark:border-amber-500/40 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl animate-fade-in relative overflow-hidden">
+      <div class="absolute -top-10 -left-10 w-28 h-28 bg-amber-400/10 rounded-full blur-xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -right-10 w-28 h-28 bg-emerald-400/10 rounded-full blur-xl pointer-events-none"></div>
+
+      <div class="w-16 h-16 mx-auto rounded-3xl bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-3xl mb-3 shadow-inner mascot-bobbing">
+        🏆
+      </div>
+      <h3 id="milestone-modal-title" class="text-xl font-black text-slate-900 dark:text-white mb-1">عاشت ايدك! بەشەکە تەواو بوو</h3>
+      <p id="milestone-modal-desc" class="text-xs text-slate-500 dark:text-slate-400 mb-5 leading-relaxed font-medium">
+        پیرۆزە! هەموو وانەکانی ئەم بەشەت بە سەرکەوتوویی تەواو کرد و پاداشتی تایبەتت پێبەخشرا.
+      </p>
+
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-800 text-center">
+          <div class="text-2xl mb-1">⚡</div>
+          <div class="text-sm font-black text-amber-600 dark:text-amber-400">+50 XP</div>
+          <div class="text-[10px] text-slate-400 font-bold">خاڵی سەرکەوتن</div>
+        </div>
+        <div class="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-200 dark:border-blue-800 text-center">
+          <div class="text-2xl mb-1">💎</div>
+          <div class="text-sm font-black text-blue-600 dark:text-blue-400">+20 ئەڵماس</div>
+          <div class="text-[10px] text-slate-400 font-bold">پاداشتی گەنجینە</div>
+        </div>
+      </div>
+
+      <button 
+        onclick="window.app.closeMilestoneModal()" 
+        class="btn-duo-3d btn-green-3d w-full py-3 rounded-2xl font-black text-sm shadow-md">
+        دەستخۆش، بەردەوام بە ➔
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: Step-by-Step PWA Install Guide -->
+  <div id="modal-pwa-guide" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full text-right shadow-2xl animate-fade-in">
+      <div class="flex items-center gap-3 mb-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="w-10 h-10 rounded-2xl bg-sky-100 dark:bg-sky-950 flex items-center justify-center text-xl">
+          📲
+        </div>
+        <div>
+          <h3 class="text-base font-black text-slate-800 dark:text-slate-100">دابەزاندنی ئەپی یەڵڵا عەرەبی</h3>
+          <p class="text-[11px] text-slate-400">بۆ سامسۆنگ، ئەندرۆید و کۆمپیوتەر</p>
+        </div>
+      </div>
+
+      <div class="space-y-3 mb-5 text-xs text-slate-600 dark:text-slate-300 font-medium">
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">١</span>
+          <p>لە وێبگەڕی Chrome یان Samsung Internet، لەسەرەوە کلیک لە <strong>سێ خاڵەکە (⋮)</strong> بکە.</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">٢</span>
+          <p>دوگمەی <strong>"Install app"</strong> یان <strong>"Add page to ➔ Home screen"</strong> هەڵبژێرە.</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">٣</span>
+          <p>ئەپەکە وەک بەرنامەی ڕاستەقینەی مۆبایل کار دەکات و دەنگی ئۆفلاین کارا دەبێت.</p>
+        </div>
+      </div>
+
+      <button 
+        onclick="window.app.closePwaGuideModal()" 
+        class="btn-duo-3d btn-blue-3d w-full py-2.5 rounded-2xl font-black text-xs shadow-md">
+        تێگەیشتم
+      </button>
+    </div>
+  </div>
+
   <!-- Scripts in Correct Dependency Order -->
   <script src="js/audio-engine.js"></script>
   <script src="js/data/curriculum-a1-a2.js"></script>
@@ -436,8 +510,10 @@
             const banner = document.getElementById('pwa-install-banner');
             if (banner) banner.classList.add('hidden');
           } else {
-            // Friendly instruction if triggered manually or in Samsung Internet
-            alert('بۆ دابەزاندنی ئەم ئەپە لەسەر سامسۆنگ گالەکسی:\n\n١. لە وێبگەڕی Chrome یان Samsung Internet کلیک لەسەر سێ خاڵەکە (⋮) بکە.\n٢. دوگمەی "Install app" یان "Add page to -> Home screen" هەڵبژێرە.');
+            // Friendly instruction modal if triggered manually or in browser
+            if (window.app && typeof window.app.showPwaGuideModal === 'function') {
+              window.app.showPwaGuideModal();
+            }
           }
         });
       }

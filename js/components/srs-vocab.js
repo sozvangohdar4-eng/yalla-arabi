@@ -17,12 +17,17 @@ class SrsVocab {
     if (!this.container) return;
 
     const allVocab = window.VOCABULARY_DATABASE || [];
+    const q = (this.searchQuery || '').trim().toLowerCase();
     const filtered = allVocab.filter(item => {
-      const matchesLevel = (this.activeFilter === 'ALL' || item.level === this.activeFilter);
-      const matchesSearch = !this.searchQuery || 
-        item.ar.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-        item.ku.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        item.phonetic_ku.toLowerCase().includes(this.searchQuery.toLowerCase());
+      const itemLevel = item.level || 'A1';
+      const matchesLevel = (this.activeFilter === 'ALL' || itemLevel === this.activeFilter);
+      const phoneticText = (item.phonetic_ku || item.phonetic || '').toLowerCase();
+      const arText = (item.ar || '').toLowerCase();
+      const kuText = (item.ku || '').toLowerCase();
+      const matchesSearch = !q || 
+        arText.includes(q) || 
+        kuText.includes(q) ||
+        phoneticText.includes(q);
       return matchesLevel && matchesSearch;
     });
 
@@ -98,12 +103,17 @@ class SrsVocab {
       return `<div class="text-center py-12 text-slate-400">هیچ وشەیەک نەدۆزرایەوە بەم فلتەرە.</div>`;
     }
 
+    const wordLevel = word.level || 'A1';
+    const categoryLabel = (word.category_name_ku || word.category || 'گشتی') + (word.pos ? ` • ${word.pos}` : '');
+    const phoneticLabel = word.phonetic_ku || word.phonetic || '';
+    const safeAr = (word.ar || '').replace(/'/g, "\\'");
+
     return `
       <div class="max-w-md mx-auto">
         <!-- Progress Info -->
         <div class="flex items-center justify-between text-xs font-bold text-slate-400 mb-2">
           <span>کارت ${this.currentCardIndex + 1} لە ${totalWords}</span>
-          <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">${word.level}</span>
+          <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 font-sans font-bold">${wordLevel}</span>
         </div>
 
         <!-- Interactive 3D Flip Card -->
@@ -114,17 +124,19 @@ class SrsVocab {
           <div class="flip-card-inner w-full h-full relative">
             <!-- Front of Card (Iraqi Arabic) -->
             <div class="flip-card-front absolute inset-0 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-between shadow-lg">
-              <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                ${word.category} • ${word.pos}
+              <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
+                ${categoryLabel}
               </div>
 
               <div class="text-center">
                 <div class="text-3xl sm:text-4xl font-black text-slate-800 dark:text-slate-100 mb-3" dir="rtl">
                   ${word.ar}
                 </div>
-                <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                  خوێندنەوە: ${word.phonetic_ku}
-                </div>
+                ${phoneticLabel ? `
+                  <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                    خوێندنەوە: ${phoneticLabel}
+                  </div>
+                ` : ''}
               </div>
 
               <div class="flex items-center gap-2 text-xs font-bold text-slate-400">
@@ -141,21 +153,19 @@ class SrsVocab {
 
               <div class="text-center w-full">
                 <div class="text-2xl sm:text-3xl font-black text-emerald-800 dark:text-emerald-200 mb-4">
-                  ${word.ku}
+                  ${word.ku || ''}
                 </div>
 
-                <div class="bg-white dark:bg-slate-800/80 p-3 rounded-2xl text-right border border-emerald-200 dark:border-slate-700 text-xs sm:text-sm">
-                  <div class="font-bold text-slate-800 dark:text-slate-100 mb-1" dir="rtl">
-                    💬 "${word.example_ar}"
+                ${(word.example_ar || word.example_ku) ? `
+                  <div class="bg-white dark:bg-slate-800/80 p-3 rounded-2xl text-right border border-emerald-200 dark:border-slate-700 text-xs sm:text-sm">
+                    ${word.example_ar ? `<div class="font-bold text-slate-800 dark:text-slate-100 mb-1" dir="rtl">💬 "${word.example_ar}"</div>` : ''}
+                    ${word.example_ku ? `<div class="text-slate-500 dark:text-slate-400">"${word.example_ku}"</div>` : ''}
                   </div>
-                  <div class="text-slate-500 dark:text-slate-400">
-                    "${word.example_ku}"
-                  </div>
-                </div>
+                ` : ''}
               </div>
 
               <button 
-                onclick="event.stopPropagation(); window.audioEngine.speakIraqi('${word.ar}')"
+                onclick="event.stopPropagation(); window.audioEngine.speakIraqi('${safeAr}')"
                 class="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs shadow-md hover:bg-emerald-600 transition-colors">
                 <i data-lucide="volume-2" class="w-4 h-4"></i>
                 <span>گوێگرتن لە دەنگ</span>
@@ -189,36 +199,46 @@ class SrsVocab {
   renderDictionaryMode(wordsList) {
     return `
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        ${wordsList.map(item => `
-          <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm hover:border-emerald-400 transition-all flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">${item.level}</span>
-                <button 
-                  onclick="window.audioEngine.speakIraqi('${item.ar}')"
-                  class="text-emerald-500 hover:scale-110 p-1 transition-transform">
-                  <i data-lucide="volume-2" class="w-5 h-5"></i>
-                </button>
+        ${wordsList.map(item => {
+          const itemLvl = item.level || 'A1';
+          const phoneticStr = item.phonetic_ku || item.phonetic || '';
+          const safeAr = (item.ar || '').replace(/'/g, "\\'");
+          return `
+            <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm hover:border-emerald-400 transition-all flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-sans">${itemLvl}</span>
+                  <button 
+                    onclick="window.audioEngine.speakIraqi('${safeAr}')"
+                    class="text-emerald-500 hover:scale-110 p-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-all"
+                    title="گوێگرتن لە دەنگ">
+                    <i data-lucide="volume-2" class="w-5 h-5"></i>
+                  </button>
+                </div>
+
+                <div class="text-xl font-black text-slate-800 dark:text-slate-100 mb-0.5" dir="rtl">
+                  ${item.ar || ''}
+                </div>
+                ${phoneticStr ? `
+                  <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                    ${phoneticStr}
+                  </div>
+                ` : ''}
+
+                <div class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                  ${item.ku || ''}
+                </div>
               </div>
 
-              <div class="text-xl font-black text-slate-800 dark:text-slate-100 mb-0.5" dir="rtl">
-                ${item.ar}
-              </div>
-              <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">
-                ${item.phonetic_ku}
-              </div>
-
-              <div class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                ${item.ku}
-              </div>
+              ${(item.example_ar || item.example_ku) ? `
+                <div class="bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl text-xs">
+                  ${item.example_ar ? `<div class="font-bold text-slate-700 dark:text-slate-200 mb-0.5" dir="rtl">"${item.example_ar}"</div>` : ''}
+                  ${item.example_ku ? `<div class="text-slate-500 dark:text-slate-400">"${item.example_ku}"</div>` : ''}
+                </div>
+              ` : ''}
             </div>
-
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl text-xs">
-              <div class="font-bold text-slate-700 dark:text-slate-200 mb-0.5" dir="rtl">"${item.example_ar}"</div>
-              <div class="text-slate-500 dark:text-slate-400">"${item.example_ku}"</div>
-            </div>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     `;
   }

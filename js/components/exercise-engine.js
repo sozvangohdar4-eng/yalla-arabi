@@ -22,6 +22,48 @@ class ExerciseEngine {
     this.isAnswerCorrect = false;
     this.speakingResult = null;
     this.isListening = false;
+    this.matchingArabicWords = [];
+    this.matchingKurdishWords = [];
+
+    this.initKeyboardShortcuts();
+  }
+
+  initKeyboardShortcuts() {
+    window.addEventListener('keydown', (e) => {
+      const exerciseView = document.getElementById('view-exercise');
+      if (!exerciseView || exerciseView.classList.contains('hidden')) return;
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const finishBtn = document.getElementById('btn-lesson-finish-action');
+        if (finishBtn) {
+          finishBtn.click();
+          return;
+        }
+        const nextBtn = document.getElementById('btn-next-action') || document.getElementById('btn-next-exercise-continue') || document.getElementById('btn-next-exercise-wrong');
+        if (nextBtn) {
+          nextBtn.click();
+          return;
+        }
+        const checkBtn = document.getElementById('btn-check-action');
+        if (checkBtn && !checkBtn.disabled) {
+          checkBtn.click();
+          return;
+        }
+      } else if (e.key >= '1' && e.key <= '4') {
+        const idx = parseInt(e.key, 10) - 1;
+        const mcBtn = document.getElementById(`mc-opt-${idx}`);
+        if (mcBtn) {
+          mcBtn.click();
+          return;
+        }
+        const drillBtn = document.getElementById(`drill-opt-${idx}`);
+        if (drillBtn) {
+          drillBtn.click();
+          return;
+        }
+      }
+    });
   }
 
   start(lesson) {
@@ -218,7 +260,7 @@ class ExerciseEngine {
               ${g.keyTable && g.keyTable.length > 0 ? `
                 <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2">
-                    <button onclick="window.audioEngine.speakIraqi('${g.keyTable[0].ar}')" class="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
+                    <button onclick="window.audioEngine.speakIraqi('${(g.keyTable[0].ar || '').replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
                       <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
                     </button>
                     <span class="text-xs font-black text-slate-800 dark:text-slate-100" dir="rtl">${g.keyTable[0].ar}</span>
@@ -325,6 +367,7 @@ class ExerciseEngine {
 
   // --- Sentence Builder with Dual Speed Audio ---
   renderSentenceBuilder(ex) {
+    const safeTargetAr = (ex.target_ar || '').replace(/'/g, "\\'");
     return `
       <div>
         <!-- Dual Speed Audio buttons for pronunciation guidance -->
@@ -332,7 +375,7 @@ class ExerciseEngine {
           <div class="flex items-center gap-2">
             <!-- Normal Speed Button -->
             <button 
-              onclick="window.audioEngine.speakIraqi('${ex.target_ar}')"
+              onclick="window.audioEngine.speakIraqi('${safeTargetAr}')"
               class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500 text-white font-black text-xs hover:bg-emerald-600 shadow-sm transition-transform active:scale-95"
               title="گوێگرتن بە خێرایی ئاسایی">
               <i data-lucide="volume-2" class="w-4 h-4"></i>
@@ -341,17 +384,19 @@ class ExerciseEngine {
 
             <!-- Slow Speed Button -->
             <button 
-              onclick="window.audioEngine.speakIraqiSlow('${ex.target_ar}')"
+              onclick="window.audioEngine.speakIraqiSlow('${safeTargetAr}')"
               class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-black text-xs hover:bg-slate-300 dark:hover:bg-slate-600 transition-transform active:scale-95"
               title="گوێگرتن بە خێرایی خاو بۆ فێربوون">
               <span>🐢 خاو</span>
             </button>
           </div>
 
-          <div class="text-left">
-            <div class="text-[11px] font-bold text-slate-400">بێژەکردن بە کوردی:</div>
-            <div class="text-xs font-black text-emerald-700 dark:text-emerald-400">${ex.phonetic_ku}</div>
-          </div>
+          ${(ex.phonetic_ku || ex.phonetic) ? `
+            <div class="text-left">
+              <div class="text-[11px] font-bold text-slate-400">بێژەکردن بە کوردی:</div>
+              <div class="text-xs font-black text-emerald-700 dark:text-emerald-400">${ex.phonetic_ku || ex.phonetic}</div>
+            </div>
+          ` : ''}
         </div>
 
         <!-- Target Construction Zone -->
@@ -364,7 +409,7 @@ class ExerciseEngine {
           ${ex.tokens.map((token, idx) => `
             <button 
               id="token-${idx}"
-              onclick="window.exerciseEngine.handleTokenClick('${token}', ${idx})" 
+              onclick="window.exerciseEngine.handleTokenClickByIdx(${idx})" 
               class="word-tile bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 border-b-4 border-b-slate-300 dark:border-b-slate-900 px-4 py-2.5 rounded-2xl font-black text-sm text-slate-800 dark:text-slate-100 shadow-sm hover:border-emerald-400 active:scale-95 transition-all">
               ${token}
             </button>
@@ -376,11 +421,12 @@ class ExerciseEngine {
 
   // --- Listening Comprehension Exercise ---
   renderListening(ex) {
+    const safeTargetAr = (ex.target_ar || '').replace(/'/g, "\\'");
     return `
       <div class="text-center py-2">
         <div class="flex flex-col items-center justify-center gap-3 mb-6">
           <button 
-            onclick="window.audioEngine.speakIraqi('${ex.target_ar}')"
+            onclick="window.audioEngine.speakIraqi('${safeTargetAr}')"
             class="w-20 h-20 rounded-3xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:scale-105 active:scale-95 transition-transform"
             title="کلیک بکە بۆ گوێگرتن لە دەنگ">
             <i data-lucide="volume-2" class="w-10 h-10"></i>
@@ -388,7 +434,7 @@ class ExerciseEngine {
           <span class="text-xs font-bold text-slate-400">کلیک بکە بۆ گوێگرتن لە دەنگی عەرەبی عێراقی</span>
 
           <button 
-            onclick="window.audioEngine.speakIraqiSlow('${ex.target_ar}')"
+            onclick="window.audioEngine.speakIraqiSlow('${safeTargetAr}')"
             class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 transition-colors">
             <span>🐢 گوێگرتنی خاو</span>
           </button>
@@ -411,6 +457,7 @@ class ExerciseEngine {
 
   // --- Speaking Exercise ---
   renderSpeaking(ex) {
+    const safeTargetAr = (ex.target_ar || '').replace(/'/g, "\\'");
     return `
       <div class="text-center py-2">
         <!-- Target Iraqi Phrase with Audio buttons -->
@@ -418,22 +465,24 @@ class ExerciseEngine {
           <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2" dir="rtl">
             "${ex.target_ar}"
           </div>
-          <div class="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-2">
-            خوێندنەوەی بە کوردی: <span class="font-black">${ex.phonetic_ku}</span>
-          </div>
+          ${(ex.phonetic_ku || ex.phonetic) ? `
+            <div class="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-2">
+              خوێندنەوەی بە کوردی: <span class="font-black">${ex.phonetic_ku || ex.phonetic}</span>
+            </div>
+          ` : ''}
           <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            واتا: ${ex.translation_ku}
+            واتا: ${ex.translation_ku || ''}
           </div>
 
           <div class="flex items-center justify-center gap-2 mt-4">
             <button 
-              onclick="window.audioEngine.speakIraqi('${ex.target_ar}')"
+              onclick="window.audioEngine.speakIraqi('${safeTargetAr}')"
               class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 text-white font-black text-xs hover:bg-emerald-600 shadow-sm transition-transform active:scale-95">
               <i data-lucide="volume-2" class="w-4 h-4"></i>
               <span>🐰 نموونەی دەنگ</span>
             </button>
             <button 
-              onclick="window.audioEngine.speakIraqiSlow('${ex.target_ar}')"
+              onclick="window.audioEngine.speakIraqiSlow('${safeTargetAr}')"
               class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-black text-xs hover:bg-slate-300">
               <span>🐢 خاو</span>
             </button>
@@ -444,7 +493,7 @@ class ExerciseEngine {
         <div class="flex flex-col items-center justify-center gap-3">
           <button 
             id="mic-btn"
-            onclick="window.exerciseEngine.handleSpeakingRecord('${ex.target_ar}')" 
+            onclick="window.exerciseEngine.handleSpeakingRecord('${safeTargetAr}')" 
             class="w-20 h-20 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/30 hover:scale-105 active:scale-95 transition-transform"
             title="کلیک بکە و بە دەنگ بیخوێنەوە">
             <i data-lucide="mic" class="w-8 h-8"></i>
@@ -460,13 +509,13 @@ class ExerciseEngine {
 
   // --- Pattern Drill (Cloze / Fill in the blank) ---
   renderPatternDrill(ex) {
-    const sentenceParts = ex.sentence_with_blank.split('______');
+    const sentenceParts = (ex.sentence_with_blank || '').split('______');
 
     return `
       <div>
         <div class="bg-slate-50 dark:bg-slate-800/80 p-5 rounded-2xl text-center mb-6 border border-slate-200 dark:border-slate-700">
           <div class="text-xl sm:text-2xl font-black text-slate-800 dark:text-slate-100 flex items-center justify-center gap-2 flex-wrap" dir="rtl">
-            <span>${sentenceParts[0]}</span>
+            <span>${sentenceParts[0] || ''}</span>
             <span id="drill-blank" class="inline-block min-w-[90px] border-b-4 border-emerald-500 text-emerald-600 font-black px-2 pb-0.5">
               (؟)
             </span>
@@ -480,7 +529,7 @@ class ExerciseEngine {
           ${ex.options.map((opt, idx) => `
             <button 
               id="drill-opt-${idx}"
-              onclick="window.exerciseEngine.handleDrillOptionSelect('${opt}', ${idx})" 
+              onclick="window.exerciseEngine.handleDrillOptionSelectByIdx(${idx})" 
               class="p-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 border-b-4 border-b-slate-300 dark:border-b-slate-800 font-black text-sm text-slate-800 dark:text-slate-100 hover:border-emerald-400 active:scale-95 transition-all text-center">
               ${opt}
             </button>
@@ -492,12 +541,13 @@ class ExerciseEngine {
 
   // --- Multiple Choice ---
   renderMultipleChoice(ex) {
+    const safeTargetAr = (ex.target_ar || '').replace(/\(.*?\)/g, '').replace(/'/g, "\\'").trim();
     return `
       <div>
         <div class="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl mb-6 text-center border border-slate-200 dark:border-slate-700">
           <div class="text-lg sm:text-xl font-black text-slate-800 dark:text-slate-100 flex items-center justify-center gap-2">
             <span>${ex.target_ar}</span>
-            <button onclick="window.audioEngine.speakIraqi('${ex.target_ar}')" class="text-emerald-500 hover:scale-110">
+            <button onclick="window.audioEngine.speakIraqi('${safeTargetAr}')" class="text-emerald-500 hover:scale-110">
               <i data-lucide="volume-2" class="w-5 h-5"></i>
             </button>
           </div>
@@ -520,18 +570,18 @@ class ExerciseEngine {
 
   // --- Matching Pairs ---
   renderMatchingPairs(ex) {
-    const arabicWords = ex.pairs.map(p => p.ar);
-    const kurdishWords = [...ex.pairs.map(p => p.ku)].sort(() => Math.random() - 0.5);
+    this.matchingArabicWords = ex.pairs.map(p => p.ar);
+    this.matchingKurdishWords = [...ex.pairs.map(p => p.ku)].sort(() => Math.random() - 0.5);
 
     return `
       <div>
         <div class="grid grid-cols-2 gap-3 sm:gap-4 max-w-md mx-auto">
           <!-- Arabic column -->
           <div class="space-y-2.5">
-            ${arabicWords.map((ar, idx) => `
+            ${this.matchingArabicWords.map((ar, idx) => `
               <button 
                 id="pair-ar-${idx}"
-                onclick="window.exerciseEngine.handleArabicPairClick('${ar}', ${idx})" 
+                onclick="window.exerciseEngine.handleArabicPairClickByIdx(${idx})" 
                 class="w-full p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-700 border-b-4 border-b-slate-300 dark:border-b-slate-800 font-black text-sm text-slate-800 dark:text-slate-100 hover:border-emerald-400 transition-all text-right flex items-center justify-between">
                 <span>${ar}</span>
                 <span class="text-slate-300 dark:text-slate-600 text-xs">🇮🇶</span>
@@ -541,10 +591,10 @@ class ExerciseEngine {
 
           <!-- Kurdish column -->
           <div class="space-y-2.5">
-            ${kurdishWords.map((ku, idx) => `
+            ${this.matchingKurdishWords.map((ku, idx) => `
               <button 
                 id="pair-ku-${idx}"
-                onclick="window.exerciseEngine.handleKurdishPairClick('${ku}', ${idx})" 
+                onclick="window.exerciseEngine.handleKurdishPairClickByIdx(${idx})" 
                 class="w-full p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-700 border-b-4 border-b-slate-300 dark:border-b-slate-800 font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 hover:border-emerald-400 transition-all text-right flex items-center justify-between">
                 <span>${ku}</span>
                 <span class="text-slate-300 dark:text-slate-600 text-xs">☀️</span>
@@ -554,6 +604,29 @@ class ExerciseEngine {
         </div>
       </div>
     `;
+  }
+
+  // --- Helper index wrappers ---
+  handleTokenClickByIdx(idx) {
+    const ex = this.exercises[this.currentIndex];
+    if (!ex || !ex.tokens || !ex.tokens[idx]) return;
+    this.handleTokenClick(ex.tokens[idx], idx);
+  }
+
+  handleDrillOptionSelectByIdx(idx) {
+    const ex = this.exercises[this.currentIndex];
+    if (!ex || !ex.options || !ex.options[idx]) return;
+    this.handleDrillOptionSelect(ex.options[idx], idx);
+  }
+
+  handleArabicPairClickByIdx(idx) {
+    if (!this.matchingArabicWords || !this.matchingArabicWords[idx]) return;
+    this.handleArabicPairClick(this.matchingArabicWords[idx], idx);
+  }
+
+  handleKurdishPairClickByIdx(idx) {
+    if (!this.matchingKurdishWords || !this.matchingKurdishWords[idx]) return;
+    this.handleKurdishPairClick(this.matchingKurdishWords[idx], idx);
   }
 
   // --- Interactions ---
@@ -755,6 +828,7 @@ class ExerciseEngine {
         </button>
 
         <button 
+          id="btn-check-action"
           onclick="window.exerciseEngine.checkAnswer()" 
           class="btn-duo-3d btn-green-3d px-8 py-3.5 rounded-2xl font-black text-sm shadow-md">
           پشکنین و دڵنیابوونەوە

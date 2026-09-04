@@ -302,7 +302,7 @@ class LearningPath {
               <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 rounded-2xl flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
                   <button 
-                    onclick="window.audioEngine.speakIraqi('${item.ar}')"
+                    onclick="window.audioEngine.speakIraqi('${item.ar.replace(/'/g, "\\'")}')"
                     class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-transform flex-shrink-0"
                     title="گوێگرتن بە عێراقی">
                     <i data-lucide="volume-2" class="w-4 h-4"></i>
@@ -321,21 +321,25 @@ class LearningPath {
         </div>
 
         <!-- Cultural Etiquette -->
-        <div class="mb-5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 p-4 rounded-2xl">
-          <h4 class="text-xs font-black text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-            <span>💡</span>
-            <span>نەریت و ئەتەکێتی عێراقی</span>
-          </h4>
-          <ul class="text-xs text-amber-900 dark:text-amber-200 space-y-1 font-medium list-disc list-inside">
-            ${guidebook.culturalNotes_ku.map(note => `<li>${note}</li>`).join('')}
-          </ul>
-        </div>
+        ${(guidebook.culturalNotes_ku && guidebook.culturalNotes_ku.length > 0) ? `
+          <div class="mb-5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 p-4 rounded-2xl">
+            <h4 class="text-xs font-black text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <span>💡</span>
+              <span>نەریت و ئەتەکێتی عێراقی</span>
+            </h4>
+            <ul class="text-xs text-amber-900 dark:text-amber-200 space-y-1 font-medium list-disc list-inside">
+              ${guidebook.culturalNotes_ku.map(note => `<li>${note}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
 
         <!-- Phonetics Tip -->
-        <div class="mb-6 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/50 p-3.5 rounded-2xl text-xs text-purple-900 dark:text-purple-200">
-          <strong class="font-black text-purple-700 dark:text-purple-300">تێبینی دەنگسازی:</strong>
-          <span class="mr-1">${guidebook.phonetics_ku}</span>
-        </div>
+        ${guidebook.phonetics_ku ? `
+          <div class="mb-6 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/50 p-3.5 rounded-2xl text-xs text-purple-900 dark:text-purple-200">
+            <strong class="font-black text-purple-700 dark:text-purple-300">تێبینی دەنگسازی:</strong>
+            <span class="mr-1">${guidebook.phonetics_ku}</span>
+          </div>
+        ` : ''}
 
         <!-- Close Button -->
         <button 
@@ -359,12 +363,15 @@ class LearningPath {
   }
 
   claimMilestoneReward(unitId) {
-    window.audioEngine.playLevelUpFanfare();
     this.state.addXP(50);
     this.state.gems += 20;
     this.state.saveState();
     this.state.updateTopBar();
-    alert(`🎉 پیرۆزە! پاداشتی کۆتایی بەشی ${unitId.toUpperCase()}ت وەرگرت (+50 XP و +20 ئەڵماس 💎)!`);
+    if (window.app && typeof window.app.showMilestoneModal === 'function') {
+      window.app.showMilestoneModal(`بەشی ${unitId.toUpperCase()}`);
+    } else {
+      window.audioEngine.playLevelUpFanfare();
+    }
   }
 }
 

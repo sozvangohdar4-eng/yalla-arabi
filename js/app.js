@@ -122,6 +122,19 @@ class AppState {
     if (heartsEl) heartsEl.textContent = this.hearts;
     if (gemsEl) gemsEl.textContent = this.gems;
     if (levelBadgeEl) levelBadgeEl.textContent = (this.currentLevel || 'a1').toUpperCase();
+
+    // Update active level highlight in desktop sidebar
+    const curLevel = (this.currentLevel || 'a1').toLowerCase();
+    ['a1', 'a2', 'b1', 'b2', 'c1', 'c2'].forEach(lvl => {
+      const btn = document.getElementById(`side-level-${lvl}`);
+      if (btn) {
+        if (lvl === curLevel) {
+          btn.className = 'side-level-pill px-2 py-1.5 rounded-lg text-xs font-black bg-emerald-500 text-white shadow-sm ring-2 ring-emerald-400/40 transition-all';
+        } else {
+          btn.className = 'side-level-pill px-2 py-1.5 rounded-lg text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all';
+        }
+      }
+    });
   }
 }
 
@@ -196,11 +209,14 @@ class App {
     if (viewName === 'exercise') {
       if (topBar) topBar.classList.add('hidden');
       if (bottomNav) bottomNav.classList.add('hidden');
-      if (sideNav) sideNav.classList.add('hidden');
+      if (sideNav) sideNav.classList.add('nav-hidden', 'hidden');
     } else {
       if (topBar) topBar.classList.remove('hidden');
       if (bottomNav) bottomNav.classList.remove('hidden');
-      if (sideNav) sideNav.classList.remove('hidden');
+      if (sideNav) {
+        sideNav.classList.remove('nav-hidden');
+        sideNav.classList.add('hidden', 'lg:flex');
+      }
     }
 
     document.querySelectorAll('[data-nav-view]').forEach(btn => {
@@ -379,6 +395,40 @@ class App {
 
   closeHeartsModal() {
     const modal = document.getElementById('modal-hearts-depleted');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  showMilestoneModal(unitTitle) {
+    try { window.audioEngine.playLevelUpFanfare(); } catch (e) {}
+    const modal = document.getElementById('modal-milestone-reward');
+    const titleEl = document.getElementById('milestone-modal-title');
+    if (titleEl && unitTitle) {
+      titleEl.textContent = `عاشت ايدك! ${unitTitle} تەواو بوو`;
+    }
+    if (modal) {
+      modal.classList.remove('hidden');
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }
+
+  closeMilestoneModal() {
+    try { window.audioEngine.playClickSound(); } catch (e) {}
+    const modal = document.getElementById('modal-milestone-reward');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  showPwaGuideModal() {
+    try { window.audioEngine.playClickSound(); } catch (e) {}
+    const modal = document.getElementById('modal-pwa-guide');
+    if (modal) {
+      modal.classList.remove('hidden');
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }
+
+  closePwaGuideModal() {
+    try { window.audioEngine.playClickSound(); } catch (e) {}
+    const modal = document.getElementById('modal-pwa-guide');
     if (modal) modal.classList.add('hidden');
   }
 

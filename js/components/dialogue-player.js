@@ -114,7 +114,7 @@ class DialoguePlayer {
                     <div class="flex items-center justify-between gap-3 mb-1">
                       <span class="text-xs font-bold text-slate-400">${t.name}</span>
                       <button 
-                        onclick="window.audioEngine.speakIraqi('${t.text_ar}')"
+                        onclick="window.audioEngine.speakIraqi('${(t.text_ar || '').replace(/'/g, "\\'")}')"
                         class="text-emerald-500 hover:scale-110 transition-transform">
                         <i data-lucide="volume-2" class="w-4 h-4"></i>
                       </button>
@@ -137,9 +137,11 @@ class DialoguePlayer {
                     <div class="text-lg font-black" dir="rtl">
                       ${t.target_ar}
                     </div>
-                    <div class="text-xs text-emerald-100 mt-1">
-                      خوێندنەوە: ${t.phonetic_ku}
-                    </div>
+                    ${(t.phonetic_ku || t.phonetic) ? `
+                      <div class="text-xs text-emerald-100 mt-1">
+                        خوێندنەوە: ${t.phonetic_ku || t.phonetic}
+                      </div>
+                    ` : ''}
                   </div>
                   <div class="text-3xl">🧑</div>
                 </div>
